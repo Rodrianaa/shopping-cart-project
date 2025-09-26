@@ -7,6 +7,8 @@ const productsDOM = document.querySelector(".products-center");
 
 import { products, productsData } from "./products.js";
 
+let cart = [];
+
 // 1. get products
 class Products {
   // get from api end point !  
@@ -35,6 +37,31 @@ class UI {
     });
     productsDOM.innerHTML = result;
   }
+  getAddToCartBtns() {
+    const addToCartBtns = document.querySelectorAll(".add-to-cart");
+    const buttons = [...addToCartBtns];
+
+    buttons.forEach((btn) => {
+      const id = btn.dataset.id;
+    // check if this item is already in the cart
+      const isInCart = cart.find((p)=>p.id===id);
+      if (isInCart){
+        btn.innerText= "In Cart";
+        btn.disable= true;
+      }
+
+      btn.addEventListener("click",(event)=> {
+        event.target.innerText = "In Cart";
+        event.target.disable = true;
+        // get product rom products :
+        const addedProduct = Storage.getProduct(id);
+        // add to cart
+        cart = [...cart, {addedProduct,quantity:1}];
+        // save cart to local storage
+        Storage.saveCart(cart);
+      })
+    });
+}
 }
 
 // 3. storage
@@ -45,7 +72,7 @@ class Storage {
 
   static getProduct(id) {
     const _products = JSON.parse(localStorage.getItem("products"));
-    return _products.find((p) => p.id == id);
+    return _products.find((p) => p.id == parseInt(id));
   }
   static saveCart(cart) {
     localStorage.setItem("cart", JSON.stringify(cart));
